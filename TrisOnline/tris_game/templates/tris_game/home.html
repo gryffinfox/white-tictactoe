@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Benvenuto a Tris Online</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
+        body { font-family: 'Poppins', sans-serif; text-align: center; margin-top: 50px; background-color: #f0f2f5; color: #333; }
+        h1 { color: #6c5ce7; }
+        .container { max-width: 400px; margin: 0 auto; padding: 30px; background-color: white; border-radius: 12px; box-shadow: 0 8px 16px rgba(0,0,0,0.1); }
+        form { display: flex; flex-direction: column; }
+        input[type="text"], button { font-size: 1rem; margin-bottom: 15px; padding: 12px; border: 1px solid #ddd; border-radius: 8px; transition: all 0.3s ease; }
+        input[type="text"]:focus { border-color: #6c5ce7; box-shadow: 0 0 0 3px rgba(108, 92, 231, 0.2); outline: none; }
+        button { background-color: #6c5ce7; color: white; border: none; cursor: pointer; font-weight: 600; }
+        button:hover { background-color: #5847d0; }
+        .modalita-container { text-align: left; margin: 10px 0 20px; }
+        .modalita-container label { margin-left: 8px; cursor: pointer; }
+        .errore { color: #d9534f; background-color: #f2dede; border: 1px solid #ebccd1; padding: 10px; border-radius: 8px; margin-bottom: 15px; }
+        #contenitore-codice-stanza { transition: all 0.4s ease; overflow: hidden; max-height: 0; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Tris Online</h1>
+        {% if errore %}
+            <p class="errore">{{ errore }}</p>
+        {% endif %}
+
+        <form method="post" id="form-ingresso">
+            {% csrf_token %}
+            <input type="text" name="nickname" placeholder="Il tuo Nickname" required value="{{ request.session.nickname }}">
+            
+            <div class="modalita-container">
+                <input type="radio" id="crea_pvp" name="azione" value="crea_pvp" checked onchange="gestisciForm()">
+                <label for="crea_pvp">Crea una Partita PvP</label><br>
+                
+                <input type="radio" id="unisciti_pvp" name="azione" value="unisciti_pvp" onchange="gestisciForm()">
+                <label for="unisciti_pvp">Unisciti a una Partita PvP</label><br>
+                
+                <input type="radio" id="vs_bot_easy" name="azione" value="bot_easy" onchange="gestisciForm()">
+                <label for="vs_bot_easy">Gioca contro BOT (Facile)</label><br>
+
+                <input type="radio" id="vs_bot_hard" name="azione" value="bot_hard" onchange="gestisciForm()">
+                <label for="vs_bot_hard">Gioca contro BOT (Difficile)</label><br>
+            </div>
+
+            <div id="contenitore-codice-stanza">
+                <input type="text" id="input-codice-stanza" name="codice_stanza" placeholder="Codice Stanza" style="text-transform:uppercase">
+            </div>
+
+            <button type="submit" id="pulsante-azione">Crea Partita</button>
+        </form>
+
+        {% if request.session.nickname %}
+        <p style="margin-top: 20px; text-align: center;">
+            <a href="{% url 'cronologia' %}">Vedi la tua cronologia partite</a>
+        </p>
+        {% endif %}
+        </div>
+    </div>
+
+    <script>
+        const contenitoreCodiceStanza = document.getElementById('contenitore-codice-stanza');
+        const inputCodiceStanza = document.getElementById('input-codice-stanza');
+        const pulsanteAzione = document.getElementById('pulsante-azione');
+
+        function gestisciForm() {
+            const azioneSelezionata = document.querySelector('input[name="azione"]:checked').value;
+            
+            if (azioneSelezionata === 'unisciti_pvp') {
+                contenitoreCodiceStanza.style.maxHeight = '100px';
+                inputCodiceStanza.required = true;
+                pulsanteAzione.textContent = 'Unisciti alla Partita';
+            } else {
+                contenitoreCodiceStanza.style.maxHeight = '0';
+                inputCodiceStanza.required = false;
+                if (azioneSelezionata === 'crea_pvp') {
+                    pulsanteAzione.textContent = 'Crea Partita';
+                } else {
+                    pulsanteAzione.textContent = 'Gioca contro il BOT';
+                }
+            }
+        }
+        // Esegui la funzione all'avvio per impostare lo stato iniziale corretto
+        gestisciForm();
+    </script>
+</body>
+</html>

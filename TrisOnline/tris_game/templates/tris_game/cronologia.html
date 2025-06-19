@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cronologia Partite - {{ nickname }}</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
+        body { font-family: 'Poppins', sans-serif; background-color: #f0f2f5; color: #333; }
+        .container { max-width: 600px; margin: 20px auto; padding: 20px; background-color: white; border-radius: 12px; box-shadow: 0 8px 16px rgba(0,0,0,0.1); }
+        h1 { color: #6c5ce7; text-align: center; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { padding: 12px; border-bottom: 1px solid #ddd; text-align: left; }
+        th { background-color: #f8f9fa; }
+        .vittoria { color: #28a745; font-weight: bold; }
+        .sconfitta { color: #dc3545; }
+        .pareggio { color: #6c757d; }
+        a { color: #6c5ce7; text-decoration: none; }
+        a:hover { text-decoration: underline; }
+        .no-partite { text-align: center; padding: 20px; color: #6c757d; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Cronologia Partite di {{ nickname }}</h1>
+        
+        {% if partite %}
+            <table>
+                <thead>
+                    <tr>
+                        <th>Avversario</th>
+                        <th>Esito</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for partita in partite %}
+                        <tr>
+                            <td>
+                                {% if partita.giocatore1 == nickname %}
+                                    {{ partita.giocatore2 }}
+                                {% else %}
+                                    {{ partita.giocatore1 }}
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if partita.vincitore == nickname %}
+                                    <span class="vittoria">Vittoria</span>
+                                {% elif partita.vincitore == 'Pareggio' %}
+                                    <span class="pareggio">Pareggio</span>
+                                {% else %}
+                                    <span class="sconfitta">Sconfitta</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p class="no-partite">Nessuna partita trovata nella tua cronologia.</p>
+        {% endif %}
+
+        <p style="text-align: center; margin-top: 20px;">
+            <a href="{% url 'home' %}">Torna alla Home</a>
+        </p>
+    </div>
+</body>
+</html>

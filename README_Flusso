@@ -1,0 +1,48 @@
+FLUSSO COMPLETO DEL PROGETTO-GIOCO
+
+Fase 1: La Home Page e la Sessione
+
+L'Utente arriva: Apri il browser e vai all'indirizzo del sito (es. http://127.0.0.1:8000/).
+Richiesta HTTP: Il tuo browser invia una richiesta GET al server Django.
+Inizia la Sessione: Django vede che sei un nuovo visitatore. Crea un ID di sessione unico, lo salva nel suo database e invia questo ID al tuo browser sotto forma di cookie. Da questo momento, ogni richiesta che farai includerà questo cookie, permettendo a Django di riconoscerti.
+La Vista Risponde: La home_view viene eseguita. Controlla request.session.get('nickname'). La prima volta, non c'è nulla. Renderizza il template home.html e te lo mostra. Il campo nickname è vuoto.
+
+
+Fase 2: Creare una Partita e Salvare in Sessione
+
+L'Utente compila il form: Inserisci il nickname "Mario" e selezioni "Crea una Partita PvP". Clicchi il pulsante.
+Richiesta POST: Il browser invia una richiesta POST alla stessa URL, includendo i dati del form (nickname e azione).
+La Vista Elabora: La home_view viene eseguita di nuovo. Questa volta request.method è 'POST'.
+Legge il nickname "Mario".
+Salva in Sessione: Esegue request.session['nickname'] = 'Mario'. Ora il server ha associato il nome "Mario" al tuo ID di sessione (e quindi al tuo browser).
+Genera un codice_stanza unico (es. "XYZ123").
+Crea un nuovo oggetto Partita nel database SQLite, salvando codice, giocatore1 ("Mario") e stato ("attesa").
+Redirect: Invece di mostrare una pagina, Django invia una risposta di "redirect" al browser, dicendogli: "Ora vai a questo nuovo indirizzo: /tris/XYZ123/".
+
+
+Fase 3: La Stanza di Gioco e il WebSocket
+
+Nuova Richiesta GET: Il browser obbedisce e fa una richiesta GET per /tris/XYZ123/.
+La Vista della Stanza: La stanza_gioco_view viene eseguita. Recupera il nickname "Mario" dalla sessione (request.session.get('nickname')) e renderizza il template stanza_gioco.html, mostrandoti la scacchiera vuota.
+Il JavaScript si attiva: Appena la pagina stanza_gioco.html è caricata, il suo JavaScript parte.
+Connessione WebSocket: Il JS apre una connessione WebSocket con il server. È un canale di comunicazione diretto e persistente, diverso dalle normali richieste HTTP. L'indirizzo è ws://.../ws/tris/XYZ123/.
+
+
+Fase 4: Il Gioco in Tempo Reale con Django Channels
+
+Il Consumer entra in gioco: La richiesta WebSocket non viene gestita da una vista, ma dal TrisConsumer.
+connect(): Il consumer accetta la connessione e ti aggiunge a un "gruppo" di messaggistica chiamato tris_XYZ123. Immagina che sia una chat room privata solo per questa partita.
+Ingresso del Giocatore: Il tuo JS invia subito un messaggio { 'tipo': 'ingresso_giocatore', 'nickname': 'Mario' } attraverso il WebSocket.
+receive(): Il consumer riceve il messaggio. Il metodo gestisci_ingresso_giocatore aggiorna la partita nel database (es. assegna "Mario" come giocatore1).
+Broadcast: Il consumer invia un messaggio di aggiornamento a tutti i membri del gruppo tris_XYZ123 (per ora solo tu). Il messaggio contiene lo stato attuale del gioco ("In attesa del 2° giocatore...").
+Un secondo giocatore si unisce: Un tuo amico, "Luigi", va sulla home, inserisce il suo nome e il codice "XYZ123". Segue esattamente lo stesso flusso e viene aggiunto anche lui al gruppo tris_XYZ123. Ora siete in due. Il consumer aggiorna la partita (stato "in_corso") e manda un broadcast a entrambi: "Turno di: Mario (X)".
+
+
+Fase 5: La Mossa
+
+Click sulla Cella: Tu (Mario) clicchi su una cella.
+Messaggio WebSocket: Il tuo JS invia un messaggio: { 'tipo': 'mossa', 'indice_cella': '4' }.
+receive() -> gestisci_mossa(): Il consumer riceve la mossa. La convalida, aggiorna la scacchiera nel database, controlla se hai vinto e cambia il turno a 'O'.
+Broadcast: Invia di nuovo lo stato aggiornato a entrambi i giocatori nel gruppo.
+Aggiornamento UI: Il JS nel tuo browser e in quello di Luigi riceve il messaggio e aggiorna la scacchiera in tempo reale, mostrando la "X" nella casella centrale e il messaggio "Turno di: Luigi (O)".
+Questo ciclo di Click -> Messaggio WebSocket -> Consumer -> Broadcast -> Aggiornamento UI si ripete fino alla fine della partita.
