@@ -1,23 +1,15 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
+
+{% load static %}
+<link rel="stylesheet" href="{% static "tris_game/stanza_gioco.css" %}"/>
+
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Partita Tris - {{ codice_stanza }}</title>
-    <style>
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; text-align: center; background-color: #f4f4f9; color: #333; }
-        .container { max-width: 500px; margin: 20px auto; padding: 20px; background-color: white; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-        h1 { color: #5a3e8d; }
-        #scacchiera { display: grid; grid-template-columns: repeat(3, 100px); grid-gap: 5px; margin: 20px auto; width: 315px; }
-        .cella { width: 100px; height: 100px; border: 2px solid #333; border-radius: 5px; font-size: 60px; font-weight: bold; display: flex; justify-content: center; align-items: center; cursor: pointer; transition: background-color 0.3s; user-select: none; }
-        .cella:hover { background-color: #e0d8f0; }
-        .cella.X { color: #d9534f; }
-        .cella.O { color: #5cb85c; }
-        #info-partita { margin-top: 20px; padding: 10px; font-size: 1.2em; min-height: 25px; border-radius: 5px; }
-        .info-attesa { background-color: #f0ad4e; color: white; }
-        .info-corso { background-color: #5bc0de; color: white; }
-        .info-finita { background-color: #5a3e8d; color: white; }
-    </style>
+
 </head>
 <body>
     <div class="container">

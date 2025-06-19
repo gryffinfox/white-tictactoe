@@ -1,24 +1,15 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
+
+{% load static %}
+<link rel="stylesheet" href="{% static "tris_game/home.css" %}"/>
+
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Benvenuto a Tris Online</title>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
-        body { font-family: 'Poppins', sans-serif; text-align: center; margin-top: 50px; background-color: #f0f2f5; color: #333; }
-        h1 { color: #6c5ce7; }
-        .container { max-width: 400px; margin: 0 auto; padding: 30px; background-color: white; border-radius: 12px; box-shadow: 0 8px 16px rgba(0,0,0,0.1); }
-        form { display: flex; flex-direction: column; }
-        input[type="text"], button { font-size: 1rem; margin-bottom: 15px; padding: 12px; border: 1px solid #ddd; border-radius: 8px; transition: all 0.3s ease; }
-        input[type="text"]:focus { border-color: #6c5ce7; box-shadow: 0 0 0 3px rgba(108, 92, 231, 0.2); outline: none; }
-        button { background-color: #6c5ce7; color: white; border: none; cursor: pointer; font-weight: 600; }
-        button:hover { background-color: #5847d0; }
-        .modalita-container { text-align: left; margin: 10px 0 20px; }
-        .modalita-container label { margin-left: 8px; cursor: pointer; }
-        .errore { color: #d9534f; background-color: #f2dede; border: 1px solid #ebccd1; padding: 10px; border-radius: 8px; margin-bottom: 15px; }
-        #contenitore-codice-stanza { transition: all 0.4s ease; overflow: hidden; max-height: 0; }
-    </style>
+    
 </head>
 <body>
     <div class="container">
