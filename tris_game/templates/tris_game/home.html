@@ -13,39 +13,37 @@
 </head>
 <body>
     <div class="container">
-        <h1>Tris Online</h1>
+        <h1>TIC-TAC-TOE</h1>
         {% if errore %}
             <p class="errore">{{ errore }}</p>
         {% endif %}
 
         <form method="post" id="form-ingresso">
             {% csrf_token %}
-            <input type="text" name="nickname" placeholder="Il tuo Nickname" required value="{{ request.session.nickname }}">
+            <label for="crea_pvp">Enter your nickname</label><br>    <input type="text" name="nickname" placeholder="Your nickname" required value="{{ request.session.nickname }}">
             
             <div class="modalita-container">
                 <input type="radio" id="crea_pvp" name="azione" value="crea_pvp" checked onchange="gestisciForm()">
-                <label for="crea_pvp">Crea una Partita PvP</label><br>
+                <label for="crea_pvp">Play vs. WORLD</label><br>
                 
                 <input type="radio" id="unisciti_pvp" name="azione" value="unisciti_pvp" onchange="gestisciForm()">
-                <label for="unisciti_pvp">Unisciti a una Partita PvP</label><br>
+                <label for="unisciti_pvp">Play vs. FRIEND</label><br>
                 
-                <input type="radio" id="vs_bot_easy" name="azione" value="bot_easy" onchange="gestisciForm()">
-                <label for="vs_bot_easy">Gioca contro BOT (Facile)</label><br>
 
                 <input type="radio" id="vs_bot_hard" name="azione" value="bot_hard" onchange="gestisciForm()">
-                <label for="vs_bot_hard">Gioca contro BOT (Difficile)</label><br>
+                <label for="vs_bot_hard">Play vs. BOT</label><br>
             </div>
 
             <div id="contenitore-codice-stanza">
-                <input type="text" id="input-codice-stanza" name="codice_stanza" placeholder="Codice Stanza" style="text-transform:uppercase">
+                <input type="text" id="input-codice-stanza" name="codice_stanza" placeholder="Code of the room" style="text-transform:uppercase">
             </div>
 
-            <button type="submit" id="pulsante-azione">Crea Partita</button>
+            <button type="submit" id="pulsante-azione">Join the game</button>
         </form>
 
         {% if request.session.nickname %}
         <p style="margin-top: 20px; text-align: center;">
-            <a href="{% url 'cronologia' %}">Vedi la tua cronologia partite</a>
+            <a href="{% url 'cronologia' %}">Game history</a>
         </p>
         {% endif %}
         </div>
@@ -62,14 +60,14 @@
             if (azioneSelezionata === 'unisciti_pvp') {
                 contenitoreCodiceStanza.style.maxHeight = '100px';
                 inputCodiceStanza.required = true;
-                pulsanteAzione.textContent = 'Unisciti alla Partita';
+                pulsanteAzione.textContent = 'Join the game';
             } else {
                 contenitoreCodiceStanza.style.maxHeight = '0';
                 inputCodiceStanza.required = false;
                 if (azioneSelezionata === 'crea_pvp') {
-                    pulsanteAzione.textContent = 'Crea Partita';
+                    pulsanteAzione.textContent = 'Play vs. WORLD';
                 } else {
-                    pulsanteAzione.textContent = 'Gioca contro il BOT';
+                    pulsanteAzione.textContent = 'Play vs. BOT';
                 }
             }
         }
