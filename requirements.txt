@@ -22,3 +22,5 @@ Twisted==25.5.0
 txaio==23.1.1
 typing_extensions==4.14.0
 zope.interface==7.2
+
+# Bastava solo Django, Channels, Daphne. Il resto sono sotto-dipendenze.

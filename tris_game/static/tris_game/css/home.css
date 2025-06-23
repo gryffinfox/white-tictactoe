@@ -1,0 +1,125 @@
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap");
+
+body {
+  font-family: "Poppins", sans-serif;
+  background-color: #f0f2f5;
+  color: #333;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  margin: 0;
+}
+
+.container {
+  background-color: white;
+  padding: 30px 40px;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 400px;
+  text-align: center;
+}
+
+h1 {
+  color: #333;
+  font-weight: 600;
+  margin-bottom: 25px;
+  font-size: 2rem;
+}
+
+.form-field {
+  margin-bottom: 15px;
+}
+
+input[type="text"] {
+  width: 100%;
+  padding: 12px;
+  font-size: 1rem;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  box-sizing: border-box;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+input[type="text"]:focus {
+  outline: none;
+  border-color: #5a3e8d;
+  box-shadow: 0 0 0 3px rgba(90, 62, 141, 0.15);
+}
+
+.action-choices {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin: 20px 0;
+  text-align: left;
+}
+
+.radio-wrap {
+  display: flex;
+  align-items: center;
+}
+
+.radio-wrap label {
+  margin-left: 8px;
+  cursor: pointer;
+}
+
+#room-code-container {
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  transition: max-height 0.4s ease, opacity 0.4s ease, margin-bottom 0.4s ease;
+  margin-bottom: 0;
+}
+
+#room-code-container.show {
+  max-height: 80px;
+  opacity: 1;
+  margin-bottom: 15px;
+}
+
+button {
+  width: 100%;
+  padding: 12px;
+  background-color: #5a3e8d;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+button:hover {
+  background-color: #4a316d;
+}
+
+.error-box,
+.error-text {
+  color: #d9534f;
+  background-color: #f2dede;
+  border: 1px solid #ebccd1;
+  padding: 10px;
+  border-radius: 8px;
+  margin-bottom: 15px;
+  text-align: center;
+  font-size: 0.9rem;
+}
+
+.history-link {
+  margin-top: 20px;
+  font-size: 0.9rem;
+}
+
+.history-link a {
+  color: #5a3e8d;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.history-link a:hover {
+  text-decoration: underline;
+}

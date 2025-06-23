@@ -1,48 +1,45 @@
 FLUSSO COMPLETO DEL PROGETTO-GIOCO
 
-Fase 1: La Home Page e la Sessione
+Fase 1: Accesso alla Home Page e Gestione della Sessione
 
-L'Utente arriva: Apri il browser e vai all'indirizzo del sito (es. http://127.0.0.1:8000/).
-Richiesta HTTP: Il tuo browser invia una richiesta GET al server Django.
-Inizia la Sessione: Django vede che sei un nuovo visitatore. Crea un ID di sessione unico, lo salva nel suo database e invia questo ID al tuo browser sotto forma di cookie. Da questo momento, ogni richiesta che farai includerà questo cookie, permettendo a Django di riconoscerti.
-La Vista Risponde: La home_view viene eseguita. Controlla request.session.get('nickname'). La prima volta, non c'è nulla. Renderizza il template home.html e te lo mostra. Il campo nickname è vuoto.
-
-
-Fase 2: Creare una Partita e Salvare in Sessione
-
-L'Utente compila il form: Inserisci il nickname "Mario" e selezioni "Crea una Partita PvP". Clicchi il pulsante.
-Richiesta POST: Il browser invia una richiesta POST alla stessa URL, includendo i dati del form (nickname e azione).
-La Vista Elabora: La home_view viene eseguita di nuovo. Questa volta request.method è 'POST'.
-Legge il nickname "Mario".
-Salva in Sessione: Esegue request.session['nickname'] = 'Mario'. Ora il server ha associato il nome "Mario" al tuo ID di sessione (e quindi al tuo browser).
-Genera un codice_stanza unico (es. "XYZ123").
-Crea un nuovo oggetto Partita nel database SQLite, salvando codice, giocatore1 ("Mario") e stato ("attesa").
-Redirect: Invece di mostrare una pagina, Django invia una risposta di "redirect" al browser, dicendogli: "Ora vai a questo nuovo indirizzo: /tris/XYZ123/".
+- Richiesta Iniziale: Un utente accede all'URL principale dell'applicazione (es. http://127.0.0.1:8000/). Il browser del client invia una richiesta GET al server Django.
+- Creazione della Sessione: Se si tratta di un nuovo visitatore, il framework Django avvia una nuova sessione. Genera un ID di sessione univoco, lo memorizza nel suo database e lo invia al browser del client tramite un cookie. Questo cookie verrà incluso in tutte le richieste successive, permettendo al server di identificare lo stesso client.
+- Risposta della View: La richiesta GET viene gestita dalla funzione home_view. Al primo accesso, non esiste un nickname associato alla sessione (request.session.get('nickname') restituisce None). La view renderizza il template tris_game/home.html e lo invia come risposta. L'utente visualizza un form con il campo del nickname vuoto.
 
 
-Fase 3: La Stanza di Gioco e il WebSocket
+Fase 2: Creazione di una Partita e Salvataggio del Nickname
 
-Nuova Richiesta GET: Il browser obbedisce e fa una richiesta GET per /tris/XYZ123/.
-La Vista della Stanza: La stanza_gioco_view viene eseguita. Recupera il nickname "Mario" dalla sessione (request.session.get('nickname')) e renderizza il template stanza_gioco.html, mostrandoti la scacchiera vuota.
-Il JavaScript si attiva: Appena la pagina stanza_gioco.html è caricata, il suo JavaScript parte.
-Connessione WebSocket: Il JS apre una connessione WebSocket con il server. È un canale di comunicazione diretto e persistente, diverso dalle normali richieste HTTP. L'indirizzo è ws://.../ws/tris/XYZ123/.
-
-
-Fase 4: Il Gioco in Tempo Reale con Django Channels
-
-Il Consumer entra in gioco: La richiesta WebSocket non viene gestita da una vista, ma dal TrisConsumer.
-connect(): Il consumer accetta la connessione e ti aggiunge a un "gruppo" di messaggistica chiamato tris_XYZ123. Immagina che sia una chat room privata solo per questa partita.
-Ingresso del Giocatore: Il tuo JS invia subito un messaggio { 'tipo': 'ingresso_giocatore', 'nickname': 'Mario' } attraverso il WebSocket.
-receive(): Il consumer riceve il messaggio. Il metodo gestisci_ingresso_giocatore aggiorna la partita nel database (es. assegna "Mario" come giocatore1).
-Broadcast: Il consumer invia un messaggio di aggiornamento a tutti i membri del gruppo tris_XYZ123 (per ora solo tu). Il messaggio contiene lo stato attuale del gioco ("In attesa del 2° giocatore...").
-Un secondo giocatore si unisce: Un tuo amico, "Luigi", va sulla home, inserisce il suo nome e il codice "XYZ123". Segue esattamente lo stesso flusso e viene aggiunto anche lui al gruppo tris_XYZ123. Ora siete in due. Il consumer aggiorna la partita (stato "in_corso") e manda un broadcast a entrambi: "Turno di: Mario (X)".
+- Invio del Form: L'utente inserisce un nickname (es. "Mario"), seleziona una modalità di gioco (es. "Play vs. WORLD" che corrisponde all'azione crea_pvp) e invia il form.
+- Richiesta POST: Il browser invia una richiesta POST allo stesso URL, includendo i dati del form: nickname e azione.
+- Elaborazione della View: La home_view processa la richiesta POST.
+- Salvataggio in Sessione: Il nickname viene salvato nella sessione del server, associandolo all'ID di sessione del client (request.session['nickname'] = 'Mario').
+- Creazione della Partita: Viene generato un codice_stanza univoco (es. "XYZ123"). Successivamente, viene creato un nuovo oggetto Partita nel database, salvando codice_stanza, giocatore1 ("Mario") e impostando lo stato_partita su "attesa".
+- Redirect: Il server non restituisce una pagina HTML, ma una risposta HTTP Redirect. Questa risposta istruisce il browser del client a effettuare una nuova richiesta GET verso l'URL della stanza di gioco (es. /tris/XYZ123/).
 
 
-Fase 5: La Mossa
+Fase 3: Ingresso nella Stanza di Gioco e Connessione WebSocket
 
-Click sulla Cella: Tu (Mario) clicchi su una cella.
-Messaggio WebSocket: Il tuo JS invia un messaggio: { 'tipo': 'mossa', 'indice_cella': '4' }.
-receive() -> gestisci_mossa(): Il consumer riceve la mossa. La convalida, aggiorna la scacchiera nel database, controlla se hai vinto e cambia il turno a 'O'.
-Broadcast: Invia di nuovo lo stato aggiornato a entrambi i giocatori nel gruppo.
-Aggiornamento UI: Il JS nel tuo browser e in quello di Luigi riceve il messaggio e aggiorna la scacchiera in tempo reale, mostrando la "X" nella casella centrale e il messaggio "Turno di: Luigi (O)".
-Questo ciclo di Click -> Messaggio WebSocket -> Consumer -> Broadcast -> Aggiornamento UI si ripete fino alla fine della partita.
+- Nuova Richiesta GET: Il browser del client esegue il redirect, inviando una richiesta GET per l'URL /tris/XYZ123/.
+- Render della Stanza: La richiesta viene gestita dalla stanza_gioco_view. Questa view recupera il nickname "Mario" dalla sessione e lo utilizza per renderizzare il template tris_game/stanza_gioco.html, che mostra all'utente la scacchiera vuota e le informazioni della partita.
+- Avvio del JavaScript: Non appena la pagina viene caricata, il codice JavaScript al suo interno viene eseguito.
+- Connessione WebSocket: Lo script apre una connessione WebSocket con il server all'indirizzo ws://.../ws/tris/XYZ123/. A differenza delle richieste HTTP, questa è una connessione persistente e bidirezionale.
+
+
+Fase 4: Gestione in Tempo Reale con Django Channels
+
+- Attivazione del Consumer: La richiesta di connessione WebSocket viene gestita dalla classe TrisConsumer, non da una view standard.
+- Metodo connect: Il consumer accetta la connessione e aggiunge il canale del client a un "gruppo" di messaggistica specifico per quella stanza (tris_XYZ123). Questo gruppo funge da canale di broadcast per tutti i partecipanti alla partita.
+- Messaggio di Ingresso: Il JavaScript del client invia immediatamente un primo messaggio tramite WebSocket: { 'tipo': 'ingresso_giocatore', 'nickname': 'Mario' }.
+- Metodo receive: Il consumer riceve il messaggio e lo instrada al metodo gestisci_ingresso_giocatore, che aggiorna il modello Partita nel database.
+- Broadcast dello Stato: Il consumer invia un messaggio di aggiornamento a tutti i membri del gruppo tris_XYZ123. In questa fase, c'è solo un giocatore, che riceve lo stato aggiornato: "In attesa del 2° giocatore...".
+- Ingresso del Secondo Giocatore: Un secondo utente (es. "Luigi") visita la home page, inserisce il proprio nickname e il codice stanza "XYZ123". Segue lo stesso flusso. Quando si connette al WebSocket e invia il suo messaggio di ingresso, il consumer aggiorna la Partita (impostando giocatore2 e cambiando stato_partita in "in_corso") e invia un broadcast a entrambi i giocatori nel gruppo. Il messaggio ora sarà: "Turno di: Mario (X)".
+
+
+Fase 5: Esecuzione di una Mossa
+
+- Azione del Giocatore: Il primo giocatore (Mario) clicca su una cella della scacchiera.
+- Invio Messaggio WebSocket: Il suo JavaScript invia un messaggio di tipo mossa attraverso il WebSocket: { 'tipo': 'mossa', 'indice_cella': '4', 'nickname': 'Mario' }.
+- Elaborazione del Consumer: Il metodo receive del consumer passa i dati a gestisci_mossa. Questo metodo valida la mossa, aggiorna la scacchiera nel database, controlla la presenza di un vincitore e imposta prossimo_turno su 'O'.
+- Broadcast dello Stato Aggiornato: Il consumer invia un nuovo stato della partita a entrambi i giocatori nel gruppo.
+- Aggiornamento della UI: Il JavaScript, sia nel browser di Mario che in quello di Luigi, riceve il messaggio di broadcast. Aggiorna dinamicamente l'interfaccia utente, disegnando la "X" nella casella scelta e mostrando il nuovo messaggio di stato: "Turno di: Luigi (O)".
+- Questo ciclo (Azione Utente → Messaggio WebSocket → Elaborazione Consumer → Broadcast → Aggiornamento UI) costituisce il cuore del gameplay e si ripete fino alla conclusione della partita.
