@@ -1,9 +1,9 @@
 from django.contrib import admin
-from .models import Partita
+from .models import Game
 
-@admin.register(Partita)
-class PartitaAdmin(admin.ModelAdmin):
-    list_display = ('codice_stanza', 'giocatore1', 'giocatore2', 'stato_partita', 'modalita_gioco', 'vincitore', 'prossimo_turno')
-    list_filter = ('stato_partita', 'modalita_gioco')
-    search_fields = ('codice_stanza', 'giocatore1', 'giocatore2')
-    readonly_fields = ('scacchiera',)
+@admin.register(Game)
+class GameAdmin(admin.ModelAdmin):
+    list_display = ('room_code', 'player1', 'player2', 'game_state', 'game_mode', 'winner', 'current_turn')
+    list_filter = ('game_state', 'game_mode')
+    search_fields = ('room_code', 'player1', 'player2')
+    readonly_fields = ('board',)

@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game History - {{ nickname }}</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'tris_game/css/history.css' %}">
+</head>
+<body>
+    <div class="container">
+        <h1>{{ nickname }}'s History</h1>
+
+        {% if games %}
+            <table>
+                <thead>
+                    <tr>
+                        <th>Opponent</th>
+                        <th>Result</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for game in games %}
+                        <tr>
+                            <td>
+                                {% if game.player1 == nickname %}
+                                    {{ game.player2|default:"N/A" }}
+                                {% else %}
+                                    {{ game.player1|default:"N/A" }}
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if game.winner == nickname %}
+                                    <span class="result win">Win</span>
+                                {% elif game.winner == 'Draw' %}
+                                    <span class="result draw">Draw</span>
+                                {% else %}
+                                    <span class="result loss">Loss</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p class="no-games">No games found in your history.</p>
+        {% endif %}
+
+        <a href="{% url 'home' %}" class="home-link">Back to Home</a>
+    </div>
+</body>
+</html>

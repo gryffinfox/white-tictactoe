@@ -1,0 +1,82 @@
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap");
+
+body {
+  font-family: "Poppins", sans-serif;
+  background-color: #f0f2f5;
+  color: #333;
+  padding-top: 40px;
+  padding-bottom: 40px;
+}
+
+.container {
+  background-color: white;
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+h1 {
+  text-align: center;
+  color: #333;
+  margin-bottom: 25px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 20px;
+}
+
+th,
+td {
+  padding: 12px 15px;
+  border-bottom: 1px solid #dee2e6;
+  text-align: left;
+}
+
+th {
+  background-color: #f8f9fa;
+  font-weight: 600;
+}
+
+tbody tr:nth-child(even) {
+  background-color: #f8f9fa;
+}
+
+.result {
+  padding: 4px 8px;
+  border-radius: 4px;
+  color: white;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.win {
+  background-color: #28a745;
+}
+.loss {
+  background-color: #dc3545;
+}
+.draw {
+  background-color: #6c757d;
+}
+
+.no-games {
+  text-align: center;
+  padding: 30px;
+  color: #6c757d;
+}
+
+.home-link {
+  display: block;
+  text-align: center;
+  color: #5a3e8d;
+  text-decoration: none;
+  font-weight: 600;
+}
+.home-link:hover {
+  text-decoration: underline;
+}

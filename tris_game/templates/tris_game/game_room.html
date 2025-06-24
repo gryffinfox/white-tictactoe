@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tic-Tac-Toe Game - {{ room_code }}</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'tris_game/css/game_room.css' %}">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Game Room</h1>
+            <p>Hello, <strong>{{ nickname }}</strong>!</p>
+        </div>
+
+        <div id="game-info" class="info-waiting">Connecting to the server...</div>
+
+        <div id="game-board">
+            {% for i in "012345678" %}
+                <div class="cell" id="cell-{{ i }}" data-index="{{ i }}"></div>
+            {% endfor %}
+        </div>
+
+        <a href="{% url 'home' %}" class="home-link">Back to Home</a>
+    </div>
+
+    {{ room_code|json_script:"json-room-code" }}
+    {{ nickname|json_script:"json-nickname" }}
+
+    <script src="{% static 'tris_game/js/game_room.js' %}"></script>
+</body>
+</html>

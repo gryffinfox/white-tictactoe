@@ -1,78 +1,56 @@
 <!DOCTYPE html>
-<html lang="it">
+<html lang="en">
 <head>
-
-{% load static %}
-<link rel="stylesheet" href="{% static "tris_game/home.css" %}"/>
-
-
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Benvenuto a Tris Online</title>
-    
+    <title>Welcome to Tic-Tac-Toe</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'tris_game/css/home.css' %}">
 </head>
 <body>
     <div class="container">
         <h1>TIC-TAC-TOE</h1>
-        {% if errore %}
-            <p class="errore">{{ errore }}</p>
+
+        {% if form.non_field_errors or form.room_code.errors %}
+            <div class="error-box">
+                {{ form.non_field_errors.as_text }}
+                {{ form.room_code.errors.as_text }}
+            </div>
         {% endif %}
 
-        <form method="post" id="form-ingresso">
+        <form method="post" id="entry-form">
             {% csrf_token %}
-            <label for="crea_pvp">Enter your nickname</label><br>    <input type="text" name="nickname" placeholder="Your nickname" required value="{{ request.session.nickname }}">
-            
-            <div class="modalita-container">
-                <input type="radio" id="crea_pvp" name="azione" value="crea_pvp" checked onchange="gestisciForm()">
-                <label for="crea_pvp">Play vs. WORLD</label><br>
-                
-                <input type="radio" id="unisciti_pvp" name="azione" value="unisciti_pvp" onchange="gestisciForm()">
-                <label for="unisciti_pvp">Play vs. FRIEND</label><br>
-                
 
-                <input type="radio" id="vs_bot_hard" name="azione" value="bot_hard" onchange="gestisciForm()">
-                <label for="vs_bot_hard">Play vs. BOT</label><br>
+            <div class="form-field">
+                {{ form.nickname }}
+                {% if form.nickname.errors %}
+                    <div class="error-text">{{ form.nickname.errors.as_text }}</div>
+                {% endif %}
             </div>
 
-            <div id="contenitore-codice-stanza">
-                <input type="text" id="input-codice-stanza" name="codice_stanza" placeholder="Code of the room" style="text-transform:uppercase">
+            <div class="action-choices">
+                {% for radio in form.action %}
+                    <div class="radio-wrap">
+                        {{ radio.tag }}
+                        <label for="{{ radio.id_for_label }}">{{ radio.choice_label }}</label>
+                    </div>
+                {% endfor %}
             </div>
 
-            <button type="submit" id="pulsante-azione">Join the game</button>
+            <div id="room-code-container" class="form-field">
+                {{ form.room_code }}
+            </div>
+
+            <button type="submit" id="action-button">Create Room</button>
         </form>
 
         {% if request.session.nickname %}
-        <p style="margin-top: 20px; text-align: center;">
-            <a href="{% url 'cronologia' %}">Game history</a>
-        </p>
-        {% endif %}
+        <div class="history-link">
+            <a href="{% url 'history' %}">View Game History</a>
         </div>
+        {% endif %}
     </div>
 
-    <script>
-        const contenitoreCodiceStanza = document.getElementById('contenitore-codice-stanza');
-        const inputCodiceStanza = document.getElementById('input-codice-stanza');
-        const pulsanteAzione = document.getElementById('pulsante-azione');
-
-        function gestisciForm() {
-            const azioneSelezionata = document.querySelector('input[name="azione"]:checked').value;
-            
-            if (azioneSelezionata === 'unisciti_pvp') {
-                contenitoreCodiceStanza.style.maxHeight = '100px';
-                inputCodiceStanza.required = true;
-                pulsanteAzione.textContent = 'Join the game';
-            } else {
-                contenitoreCodiceStanza.style.maxHeight = '0';
-                inputCodiceStanza.required = false;
-                if (azioneSelezionata === 'crea_pvp') {
-                    pulsanteAzione.textContent = 'Play vs. WORLD';
-                } else {
-                    pulsanteAzione.textContent = 'Play vs. BOT';
-                }
-            }
-        }
-        // Esegui la funzione all'avvio per impostare lo stato iniziale corretto
-        gestisciForm();
-    </script>
+    <script src="{% static 'tris_game/js/home.js' %}"></script>
 </body>
 </html>

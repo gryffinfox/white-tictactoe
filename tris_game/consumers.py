@@ -1,159 +1,155 @@
 import json
-import random
 from channels.generic.websocket import AsyncWebsocketConsumer
-from .models import Partita
 from asgiref.sync import sync_to_async
+from .models import Game
+from . import game_logic
 
-class TrisConsumer(AsyncWebsocketConsumer):
-    #Gestisce la logica di gioco in tempo reale.
+# Gestisce la connessione WebSocket e la logica di gioco in tempo reale.
+class TicTacToeConsumer(AsyncWebsocketConsumer):
+
+    # Chiamato alla connessione di un client.
     async def connect(self):
-        self.codice_stanza = self.scope['url_route']['kwargs']['codice_stanza']
-        self.gruppo_stanza = f'tris_{self.codice_stanza}'
-
-        await self.channel_layer.group_add(self.gruppo_stanza, self.channel_name)
+        self.room_code = self.scope['url_route']['kwargs']['room_code']
+        self.room_group_name = f'tris_{self.room_code}'
+        
+        await self.channel_layer.group_add(self.room_group_name, self.channel_name)
         await self.accept()
 
+    # Chiamato alla disconnessione di un client.
     async def disconnect(self, close_code):
-        await self.channel_layer.group_discard(self.gruppo_stanza, self.channel_name)
+        await self.channel_layer.group_discard(self.room_group_name, self.channel_name)
 
+    # Chiamato quando si riceve un messaggio dal client.
     async def receive(self, text_data):
-        dati_json = json.loads(text_data)
-        tipo_messaggio = dati_json.get('tipo')
+        data = json.loads(text_data)
+        message_type = data.get('type')
 
-        if tipo_messaggio == 'ingresso_giocatore':
-            await self.gestisci_ingresso_giocatore(dati_json)
-        elif tipo_messaggio == 'mossa':
-            await self.gestisci_mossa(dati_json)
+        if message_type == 'player_join':
+            await self.handle_player_join(data)
+        elif message_type == 'move':
+            await self.handle_move(data)
 
-    # --- Gestori di eventi ---
+    # Gestisce l'ingresso di un giocatore nella stanza.
+    async def handle_player_join(self, data):
+        nickname = data['nickname']
+        game = await self._get_game()
 
-    async def gestisci_ingresso_giocatore(self, dati):
-        nickname = dati['nickname']
-        partita = await self.get_partita()
-
-        # Assegna il giocatore solo se la modalità è PvP e c'è un posto libero
-        if partita.modalita_gioco == 'player':
-            if partita.giocatore1 is None:
-                partita.giocatore1 = nickname
-            elif partita.giocatore2 is None and partita.giocatore1 != nickname:
-                partita.giocatore2 = nickname
-
-            # Se entrambi i giocatori sono presenti, inizia la partita
-            if partita.giocatore1 and partita.giocatore2:
-                partita.stato_partita = 'in_corso'
+        if game.game_mode == Game.GameMode.PLAYER:
+            if game.player1 is None:
+                game.player1 = nickname
+            elif game.player2 is None and game.player1 != nickname:
+                game.player2 = nickname
+                game.game_state = Game.GameState.IN_PROGRESS
         
-        await self.save_partita(partita)
-        await self.invia_stato_partita_a_tutti()
+        await self._save_game(game)
+        await self._broadcast_game_state()
 
-    async def gestisci_mossa(self, dati):
-        nickname = dati['nickname']
-        indice_cella = int(dati['indice_cella'])
-        
-        partita = await self.get_partita()
+    # Gestisce una mossa inviata da un giocatore.
+    async def handle_move(self, data):
+        nickname = data['nickname']
+        cell_index = int(data['cell_index'])
+        game = await self._get_game()
 
-        if not self.is_mossa_valida(partita, nickname, indice_cella):
+        if not self._is_move_valid(game, nickname, cell_index):
             return
 
-        partita = self.applica_mossa(partita, indice_cella, partita.prossimo_turno)
-        partita = self.aggiorna_stato_post_mossa(partita)
-        await self.save_partita(partita)
+        # Applica la mossa e aggiorna lo stato.
+        game = self._apply_move(game, cell_index, game.current_turn)
+        game = self._update_status_after_move(game)
+        await self._save_game(game)
 
-        if partita.stato_partita == 'in_corso' and partita.prossimo_turno == 'O' and partita.giocatore2 == 'BOT':
-            await self.esegui_mossa_bot()
-        else:
-            await self.invia_stato_partita_a_tutti()
-
-    async def esegui_mossa_bot(self):
-        partita = await self.get_partita()
+        # Se è il turno del BOT, esegue la sua mossa.
+        is_bot_turn = (game.game_state == Game.GameState.IN_PROGRESS and 
+                       game.current_turn == 'O' and game.player2 == 'BOT')
         
-        mosse_disponibili = [i for i, v in enumerate(partita.scacchiera) if v == '_']
-        if not mosse_disponibili: return
+        if is_bot_turn:
+            await self.execute_bot_move()
+        else:
+            await self._broadcast_game_state()
+    
+    # Esegue la mossa del BOT in base alla difficoltà.
+    async def execute_bot_move(self):
+        game = await self._get_game()
+        
+        bot_move = -1
+        if game.game_mode == Game.GameMode.BOT_EASY:
+            bot_move = game_logic.calculate_easy_bot_move(game.board, 'O', 'X')
+        elif game.game_mode == Game.GameMode.BOT_HARD:
+            bot_move = game_logic.calculate_minimax_move(game.board, 'O')['index']
 
-        if partita.modalita_gioco == 'bot_easy':
-            mossa_bot = random.choice(mosse_disponibili)
-        else: # bot_hard
-            mossa_bot = self.calcola_mossa_difficile(partita.scacchiera, 'O', 'X')
+        if bot_move != -1:
+            game = self._apply_move(game, bot_move, 'O')
+            game = self._update_status_after_move(game)
+            await self._save_game(game)
+        
+        await self._broadcast_game_state()
 
-        partita = self.applica_mossa(partita, mossa_bot, 'O')
-        partita = self.aggiorna_stato_post_mossa(partita)
-        await self.save_partita(partita)
-        await self.invia_stato_partita_a_tutti()
-
-    # --- Logica di Gioco e Validazione (invariata ma fondamentale) ---
-    def is_mossa_valida(self, partita, nickname, indice):
-        if partita.stato_partita != 'in_corso': return False
-        giocatore_simbolo = 'X' if nickname == partita.giocatore1 else 'O'
-        if giocatore_simbolo != partita.prossimo_turno: return False
-        if not (0 <= indice < 9) or partita.scacchiera[indice] != '_': return False
+    # Controlla se una mossa è valida.
+    def _is_move_valid(self, game, nickname, index):
+        if game.game_state != Game.GameState.IN_PROGRESS: return False
+        player_symbol = 'X' if nickname == game.player1 else 'O'
+        if player_symbol != game.current_turn: return False
+        if not (0 <= index < 9) or game.board[index] != '_': return False
         return True
 
-    def applica_mossa(self, partita, indice, simbolo):
-        lista_scacchiera = list(partita.scacchiera)
-        lista_scacchiera[indice] = simbolo
-        partita.scacchiera = "".join(lista_scacchiera)
-        return partita
+    # Applica una mossa sulla scacchiera.
+    def _apply_move(self, game, index, symbol):
+        board_list = list(game.board)
+        board_list[index] = symbol
+        game.board = "".join(board_list)
+        return game
 
-    def aggiorna_stato_post_mossa(self, partita):
-        simbolo_vincitore = self.controlla_vincitore(partita.scacchiera)
-        if simbolo_vincitore:
-            partita.stato_partita = 'finita'
-            partita.vincitore = partita.giocatore1 if simbolo_vincitore == 'X' else partita.giocatore2
-        elif '_' not in partita.scacchiera:
-            partita.stato_partita = 'finita'
-            partita.vincitore = 'Pareggio'
+    # Aggiorna lo stato della partita dopo una mossa (vittoria, pareggio, ecc.).
+    def _update_status_after_move(self, game):
+        winner_symbol = game_logic.check_winner(game.board)
+        if winner_symbol:
+            game.game_state = Game.GameState.FINISHED
+            game.winner = game.player1 if winner_symbol == 'X' else game.player2
+        elif '_' not in game.board:
+            game.game_state = Game.GameState.FINISHED
+            game.winner = 'Draw'
         else:
-            partita.prossimo_turno = 'O' if partita.prossimo_turno == 'X' else 'X'
-        return partita
+            game.current_turn = 'O' if game.current_turn == 'X' else 'X'
+        return game
 
-    def controlla_vincitore(self, s):
-        linee = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]]
-        for l in linee:
-            if s[l[0]] == s[l[1]] == s[l[2]] and s[l[0]] != '_': return s[l[0]]
-        return None
-
-    def calcola_mossa_difficile(self, scacchiera, simbolo_bot, simbolo_player):
-        mosse_disponibili = [i for i, v in enumerate(scacchiera) if v == '_']
-        for simbolo in [simbolo_bot, simbolo_player]:
-            for mossa in mosse_disponibili:
-                test = list(scacchiera); test[mossa] = simbolo
-                if self.controlla_vincitore("".join(test)) == simbolo: return mossa
-        if 4 in mosse_disponibili: return 4
-        angoli = [i for i in [0,2,6,8] if i in mosse_disponibili]
-        if angoli: return random.choice(angoli)
-        return random.choice(mosse_disponibili)
-
-    # --- Comunicazione e invio dati ---
-    async def invia_stato_partita_a_tutti(self):
-        partita = await self.get_partita()
-        messaggio, classe_info = self.crea_messaggio_info(partita)
+    # Invia lo stato aggiornato della partita a tutti i client nel gruppo.
+    async def _broadcast_game_state(self):
+        game = await self._get_game()
+        message, info_class = self._create_info_message(game)
+        
         await self.channel_layer.group_send(
-            self.gruppo_stanza,
+            self.room_group_name,
             {
-                'type': 'broadcast_stato',
-                'scacchiera': partita.scacchiera,
-                'messaggio': messaggio,
-                'classe_info': classe_info
+                'type': 'broadcast.state', # Nome del gestore per l'evento
+                'board': game.board,
+                'message': message,
+                'info_class': info_class
             }
         )
 
-    def crea_messaggio_info(self, partita):
-        if partita.stato_partita == 'attesa':
-            return f"In attesa del 2° giocatore... Codice: {partita.codice_stanza}", "info-attesa"
-        if partita.stato_partita == 'in_corso':
-            giocatore_di_turno = partita.giocatore1 if partita.prossimo_turno == 'X' else partita.giocatore2
-            return f"Turno di: {giocatore_di_turno} ({partita.prossimo_turno})", "info-corso"
-        if partita.stato_partita == 'finita':
-            return (f"Partita finita in pareggio!", "info-finita") if partita.vincitore == 'Pareggio' else (f"Ha vinto {partita.vincitore}!", "info-finita")
+    # Prepara il messaggio di stato da visualizzare sul client.
+    def _create_info_message(self, game):
+        if game.game_state == Game.GameState.WAITING:
+            return f"Waiting for Player 2... Code: {game.room_code}", "info-waiting"
+        if game.game_state == Game.GameState.IN_PROGRESS:
+            turn_player = game.player1 if game.current_turn == 'X' else game.player2
+            return f"Turn: {turn_player} ({game.current_turn})", "info-progress"
+        if game.game_state == Game.GameState.FINISHED:
+            if game.winner == 'Draw':
+                return "Game ended in a draw!", "info-finished"
+            return f"{game.winner} has won!", "info-finished"
         return "", ""
 
-    async def broadcast_stato(self, event):
+    # Invia i dati al singolo client WebSocket. (Nota: il nome del metodo deve corrispondere al 'type' in group_send)
+    async def broadcast_state(self, event):
         await self.send(text_data=json.dumps(event))
 
-    # --- Interazioni DB ---
+    # Recupera la partita dal DB in modo asincrono.
     @sync_to_async
-    def get_partita(self):
-        return Partita.objects.get(codice_stanza=self.codice_stanza)
+    def _get_game(self):
+        return Game.objects.get(room_code=self.room_code)
 
+    # Salva la partita nel DB in modo asincrono.
     @sync_to_async
-    def save_partita(self, partita):
-        partita.save()
+    def _save_game(self, game):
+        game.save()
