@@ -1,13 +1,17 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Game History - {{ nickname }}</title>
-    {% load static %}
-    <link rel="stylesheet" href="{% static 'tris_game/css/history.css' %}">
-</head>
-<body>
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}
+Game History - {{ nickname }}
+{% endblock %}
+
+{% block styling %}
+<link rel="stylesheet" href="{% static 'tris_game/css/history.css' %}">
+{% endblock %}
+
+
+{% block content %}
+
     <div class="container">
         <h1>{{ nickname }}'s History</h1>
 
@@ -48,5 +52,4 @@
 
         <a href="{% url 'home' %}" class="home-link">Back to Home</a>
     </div>
-</body>
-</html>
+{% endblock %}
