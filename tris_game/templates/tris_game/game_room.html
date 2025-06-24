@@ -1,16 +1,18 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tic-Tac-Toe Game - {{ room_code }}</title>
-    {% load static %}
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@700&family=Poppins:wght@400;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{% static 'tris_game/css/game_room.css' %}">
-</head>
-<body>
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}
+Tic-Tac-Toe Game - {{ room_code }}
+{% endblock %}
+
+{% block styling %}
+<link rel="stylesheet" href="{% static 'tris_game/css/game_room.css' %}">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@700&family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
     <div class="container">
         <div class="header">
             <h1>Game Room: {{ room_code }}</h1>
@@ -32,5 +34,4 @@
     {{ nickname|json_script:"json-nickname" }}
 
     <script src="{% static 'tris_game/js/game_room.js' %}"></script>
-</body>
-</html>
+    {% endblock %}
