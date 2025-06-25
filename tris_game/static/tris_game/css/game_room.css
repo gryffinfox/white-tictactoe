@@ -1,9 +1,9 @@
 @import url("https://fonts.googleapis.com/css2?family=Exo+2:wght@700&family=Poppins:wght@400;600&display=swap");
 
 :root {
-  --primary-glow: #00d9ff; /* Azzurro Elettrico */
-  --secondary-glow: #f000ff; /* Magenta Vibrante */
-  --win-color: #39ff14; /* Verde Neon */
+  --primary-glow: #00d9ff;
+  --secondary-glow: #f000ff; 
+  --win-color: #39ff14; 
   --background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
   --container-bg: rgba(15, 12, 41, 0.7);
   --text-color: #e0e0e0;
@@ -82,35 +82,33 @@ var
   margin: 5px 0 20px;
 }
 
-/* SEZIONE CORRETTA */
 #game-info {
   padding: 12px;
   border-radius: 8px;
   font-weight: 600;
-  color: #111; /* Testo scuro di default per sfondi chiari/accesi */
+  color: #111;
   margin-bottom: 20px;
   transition: all 0.4s ease;
   border: 1px solid transparent;
 }
 
 .info-waiting {
-    background-color: #f0ad4e; /* Giallo per l'attesa */
+    background-color: #f0ad4e; 
     border-color: #f0ad4e;
     box-shadow: 0 0 15px #f0ad4e;
 }
 
 .info-progress {
-    background-color: var(--primary-glow); /* Azzurro acceso per il turno */
+    background-color: var(--primary-glow); 
     border-color: var(--primary-glow);
     box-shadow: 0 0 15px var(--primary-glow);
 }
 
 .info-finished {
-  background-color: var(--win-color); /* Verde per la vittoria/fine */
+  background-color: var(--win-color); 
   border-color: var(--win-color);
   box-shadow: 0 0 15px var(--win-color);
 }
-/* FINE SEZIONE CORRETTA */
 
 
 #game-board {
@@ -150,13 +148,6 @@ var
   color: var(--secondary-glow);
   text-shadow: 0 0 5px var(--secondary-glow), 0 0 20px var(--secondary-glow);
 }
-
-/* .winning-cell {
-    background-color: var(--win-color) !important;
-    color: #111 !important;
-    text-shadow: none !important;
-    animation: pulse 1s infinite;
-} */
 
 .home-link {
   color: var(--primary-glow);

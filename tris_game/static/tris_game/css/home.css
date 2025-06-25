@@ -1,8 +1,8 @@
 @import url("https://fonts.googleapis.com/css2?family=Exo+2:wght@700&family=Poppins:wght@400;600&display=swap");
 
 :root {
-  --primary-glow: #00d9ff; /* Azzurro Elettrico */
-  --secondary-glow: #f000ff; /* Magenta Vibrante */
+  --primary-glow: #00d9ff;
+  --secondary-glow: #f000ff; 
   --background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
   --container-bg: rgba(15, 12, 41, 0.7);
   --text-color: #e0e0e0;
@@ -157,11 +157,16 @@ button:hover {
   box-shadow: 0 0 25px rgba(0, 217, 255, 0.7);
 }
 
+.history-link {
+  margin-top: 20px;
+  color: var(--primary-glow);
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
 .history-link a {
   color: var(--primary-glow);
   text-decoration: none;
-  font-weight: 600;
-  transition: all 0.3s ease;
 }
 
 .history-link a:hover {

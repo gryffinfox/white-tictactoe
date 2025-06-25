@@ -62,7 +62,6 @@ gameBoardEl.addEventListener('click', function(e) {
     }
 });
 
-// NUOVA FUNZIONE per illuminare la linea vincente
 function highlightWinningLine(board) {
     const lines = [
         [0, 1, 2], [3, 4, 5], [6, 7, 8], // righe
