@@ -1,9 +1,9 @@
 @import url("https://fonts.googleapis.com/css2?family=Exo+2:wght@700&family=Poppins:wght@400;600&display=swap");
 
 :root {
-  --primary-glow: #00d9ff; /* Azzurro Elettrico */
-  --win-color: #39ff14; /* Verde Neon */
-  --loss-color: #ff2a6d; /* Rosso/Rosa Neon */
+  --primary-glow: #00d9ff; 
+  --win-color: #39ff14; 
+  --loss-color: #ff2a6d; 
   --draw-color: #6c757d;
   --background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
   --container-bg: rgba(15, 12, 41, 0.7);
