@@ -99,9 +99,11 @@ input[type="text"]:focus {
   text-align: left;
 }
 
+
+
 .radio-wrap {
   display: flex;
-  align-items: center;
+  align-items: left;
   background: rgba(0, 217, 255, 0.05);
   padding: 12px;
   border-radius: 8px;
@@ -109,6 +111,11 @@ input[type="text"]:focus {
   cursor: pointer;
   transition: all 0.3s ease;
 }
+
+div.radio-wrap label {
+  padding-left: 10px;
+}
+
 
 .radio-wrap:hover {
   transform: translateY(-2px);
