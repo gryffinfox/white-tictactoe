@@ -1,0 +1,15 @@
+TRIS ONLINE
+
+Tecnologie utilizzate = Django con sessioni e DB, e Channels con WebSocket ASGI
+
+Creare un ambiente virtuale venv con "python -m venv venv" e attivarlo con:
+
+- "venv\Scripts\activate" su Windows.
+- "source venv/bin/activate" su Linux.
+
+Installare le dipendenze con "pip install django, channels, daphne".
+
+Avviare il Server di sviluppo Django con "python manage.py runserver".
+OPPURE il Server di produzione WebSocket con "daphne -b 0.0.0.0 -p 8000 tris_online.asgi:application".
+
+Aprire due pagine "http://127.0.0.1:8000" e giocare in tempo reale.

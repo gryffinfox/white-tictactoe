@@ -1,9 +1,57 @@
-@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Exo+2:wght@700&family=Poppins:wght@400;600&display=swap");
+
+:root {
+  --primary-glow: #00d9ff; /* Azzurro Elettrico */
+  --secondary-glow: #f000ff; /* Magenta Vibrante */
+  --win-color: #39ff14; /* Verde Neon */
+  --background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+  --container-bg: rgba(15, 12, 41, 0.7);
+  --text-color: #e0e0e0;
+  --title-font: 'Exo 2', sans-serif;
+  --body-font: 'Poppins', sans-serif;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); box-shadow: 0 0 10px var(--win-color), inset 0 0 10px var(--win-color); }
+    50% { transform: scale(1.05); box-shadow: 0 0 25px var(--win-color), inset 0 0 15px var(--win-color); }
+    100% { transform: scale(1); box-shadow: 0 0 10px var(--win-color), inset 0 0 10px var(--win-color); }
+}
+
+/* Keyframes per X (primary-glow) */
+@keyframes pulse-primary {
+  0%   { transform: scale(1);   box-shadow: 0 0 10px var(--primary-glow),  inset 0 0 10px var(--primary-glow); }
+  50%  { transform: scale(1.05);box-shadow: 0 0 25px var(--primary-glow),  inset 0 0 15px var(--primary-glow); }
+  100% { transform: scale(1);   box-shadow: 0 0 10px var(--primary-glow),  inset 0 0 10px var(--primary-glow); }
+}
+
+/* Keyframes per O (secondary-glow) */
+@keyframes pulse-secondary {
+  0%   { transform: scale(1);   box-shadow: 0 0 10px var(--secondary-glow), inset 0 0 10px var(--secondary-glow); }
+  50%  { transform: scale(1.05);box-shadow: 0 0 25px var(--secondary-glow), inset 0 0 15px var(--secondary-glow); }
+  100% { transform: scale(1);   box-shadow: 0 0 10px var(--secondary-glow), inset 0 0 10px var(--secondary-glow); }
+}
+
+/* Stile per cella X vincente */
+.cell.X.winning-cell {
+  background-color: var(--primary-glow) !important;
+  color: #111 !important;
+  text-shadow: none !important;
+  animation: pulse-primary 1s infinite;
+}
+
+/* Stile per cella O vincente */
+.cell.O.winning-cell {
+  background-color: var(--secondary-glow) !important;
+  color: #111 !important;
+  text-shadow: none !important;
+  animation: pulse-secondary 1s infinite;
+}
+
 
 body {
-  font-family: "Poppins", sans-serif;
-  background-color: #f0f2f5;
-  color: #333;
+  font-family: var(--body-font);
+  background: var(--background);
+  color: var(--text-color);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -12,81 +60,116 @@ body {
 }
 
 .container {
-  background-color: white;
+  background: var(--container-bg);
+  backdrop-filter: blur(15px);
   padding: 30px;
-  border-radius: 12px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+  border-radius: 20px;
+  border: 1px solid rgba(0, 217, 255, 0.3);
   width: 100%;
   max-width: 400px;
   text-align: center;
 }
 
 .header h1 {
+  font-family: var(--title-font);
   margin: 0;
   font-size: 1.8rem;
+  color: #fff;
+  text-shadow: 0 0 8px var(--primary-glow);
 }
+var
 .header p {
   margin: 5px 0 20px;
-  color: #666;
 }
 
+/* SEZIONE CORRETTA */
 #game-info {
   padding: 12px;
   border-radius: 8px;
   font-weight: 600;
-  color: white;
+  color: #111; /* Testo scuro di default per sfondi chiari/accesi */
   margin-bottom: 20px;
-  transition: background-color 0.3s;
+  transition: all 0.4s ease;
+  border: 1px solid transparent;
 }
 
 .info-waiting {
-  background-color: #f0ad4e;
+    background-color: #f0ad4e; /* Giallo per l'attesa */
+    border-color: #f0ad4e;
+    box-shadow: 0 0 15px #f0ad4e;
 }
+
 .info-progress {
-  background-color: #5bc0de;
+    background-color: var(--primary-glow); /* Azzurro acceso per il turno */
+    border-color: var(--primary-glow);
+    box-shadow: 0 0 15px var(--primary-glow);
 }
+
 .info-finished {
-  background-color: #5a3e8d;
+  background-color: var(--win-color); /* Verde per la vittoria/fine */
+  border-color: var(--win-color);
+  box-shadow: 0 0 15px var(--win-color);
 }
+/* FINE SEZIONE CORRETTA */
+
 
 #game-board {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 10px;
-  margin-bottom: 20px;
+  gap: 8px;
+  margin-bottom: 25px;
 }
 
 .cell {
   width: 100%;
   aspect-ratio: 1 / 1;
-  background-color: #e9ecef;
-  border-radius: 8px;
+  background-color: rgba(0, 0, 0, 0.3);
+  border-radius: 10px;
   display: flex;
   justify-content: center;
   align-items: center;
-  font-size: 3rem;
-  font-weight: 600;
+  font-size: 4rem;
+  font-family: var(--title-font);
+  font-weight: 700;
   cursor: pointer;
   user-select: none;
-  transition: background-color 0.2s;
+  transition: all 0.2s ease;
+  border: 2px solid transparent;
 }
 
 .cell:hover {
-  background-color: #dee2e6;
+  background-color: rgba(0, 0, 0, 0.5);
+  border-color: rgba(0, 217, 255, 0.4);
 }
 
 .cell.X {
-  color: #d9534f;
+  color: var(--primary-glow);
+  text-shadow: 0 0 5px var(--primary-glow), 0 0 20px var(--primary-glow);
 }
 .cell.O {
-  color: #5cb85c;
+  color: var(--secondary-glow);
+  text-shadow: 0 0 5px var(--secondary-glow), 0 0 20px var(--secondary-glow);
 }
 
+/* .winning-cell {
+    background-color: var(--win-color) !important;
+    color: #111 !important;
+    text-shadow: none !important;
+    animation: pulse 1s infinite;
+} */
+
 .home-link {
-  color: #5a3e8d;
+  color: var(--primary-glow);
   text-decoration: none;
   font-weight: 600;
+  border: 1px solid var(--primary-glow);
+  padding: 8px 15px;
+  border-radius: 6px;
+  transition: all 0.3s ease;
 }
+
 .home-link:hover {
-  text-decoration: underline;
+  background-color: var(--primary-glow);
+  color: #111;
+  box-shadow: 0 0 15px var(--primary-glow);
 }
