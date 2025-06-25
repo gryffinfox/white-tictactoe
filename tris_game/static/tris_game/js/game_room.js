@@ -17,6 +17,11 @@ socket.onmessage = function(e) {
     const data = JSON.parse(e.data);
     console.log("Data received:", data);
 
+    // Rimuove la vecchia classe 'winner' prima di ogni aggiornamento
+    document.querySelectorAll('.winning-cell').forEach(cell => {
+        cell.classList.remove('winning-cell');
+    });
+
     // Aggiorna messaggio e stile
     gameInfoEl.textContent = data.message;
     gameInfoEl.className = 'info-base'; // Rimuove tutte le classi di stato
@@ -32,6 +37,11 @@ socket.onmessage = function(e) {
         cell.classList.remove('X', 'O');
         if (symbol === 'X') cell.classList.add('X');
         if (symbol === 'O') cell.classList.add('O');
+    }
+
+    // Se la partita è finita con un vincitore, illumina la linea vincente
+    if (data.info_class === 'info-finished' && data.message.includes('has won')) {
+        highlightWinningLine(data.board);
     }
 };
 
@@ -51,3 +61,24 @@ gameBoardEl.addEventListener('click', function(e) {
         }));
     }
 });
+
+// NUOVA FUNZIONE per illuminare la linea vincente
+function highlightWinningLine(board) {
+    const lines = [
+        [0, 1, 2], [3, 4, 5], [6, 7, 8], // righe
+        [0, 3, 6], [1, 4, 7], [2, 5, 8], // colonne
+        [0, 4, 8], [2, 4, 6]             // diagonali
+    ];
+
+    for (const line of lines) {
+        const [a, b, c] = line;
+        if (board[a] !== '_' && board[a] === board[b] && board[a] === board[c]) {
+            // Trovata la linea vincente
+            line.forEach(index => {
+                const cell = document.getElementById(`cell-${index}`);
+                cell.classList.add('winning-cell');
+            });
+            return; 
+        }
+    }
+}
